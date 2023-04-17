@@ -5,6 +5,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
 import 'package:testratraflutter/pages/DescriptionPage.dart';
 import 'package:testratraflutter/pages/FavoritePage.dart';
+import 'package:testratraflutter/pages/HistoryPage.dart';
 
 
 
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
     
     class _HomePageState extends State<HomePage> {
       List exercises = [];
+      List exercisesFav = [];
       late List<bool> isFavoriteList;
 
       Future<List> FetchAllExercise() async {
@@ -37,6 +39,7 @@ class HomePage extends StatefulWidget {
           throw Exception('Failed to load exercises');
         }
       }
+
       Future<void> addFavorite(String userId, String exerciseId) async {
         final url = Uri.parse('http://localhost:3000/$userId/exercises/$exerciseId');
 
@@ -59,6 +62,24 @@ class HomePage extends StatefulWidget {
           throw Exception('Erreur : impossible de supprimer l\'exercice aux favoris');
         }
       }
+      Future<List> fetchAllFavoriteExercices(String userId) async {
+
+        var url = Uri.parse('http://localhost:3000/$userId/exercises');
+        var response = await http.get(url);
+        print(url);
+
+        if (response.statusCode == 200) {
+          var jsonResponse = jsonDecode(response.body);
+          setState(() {
+            exercisesFav = jsonResponse['data'];
+            isFavoriteList = List.generate(exercisesFav.length, (index) => false);
+
+          });
+          return exercisesFav;
+        } else {
+          throw Exception('Failed to load exercises');
+        }
+      }
 
   late String email;
       late String idUser;
@@ -67,15 +88,25 @@ class HomePage extends StatefulWidget {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    Map<String,dynamic> jwtDecodedToken= JwtDecoder.decode(widget.token);
-    FetchAllExercise();
 
+    final jwtDecodedToken = JwtDecoder.decode(widget.token);
     email = jwtDecodedToken['email'];
     idUser = jwtDecodedToken['_id'];
     print(idUser);
+
+    fetchAllFavoriteExercices(idUser).then((favorites) {
+      final idsSet = Set<String>.from(favorites.map((fav) => fav['_id']));
+
+      setState(() {
+        exercisesFav = favorites;
+        isFavoriteList = exercises.map((exercise) => idsSet.contains(exercise['_id'])).toList();
+      });
+    });
+
+    FetchAllExercise();
   }
+
       @override
       Widget build(BuildContext context) {
         return Scaffold(
@@ -92,6 +123,14 @@ class HomePage extends StatefulWidget {
 
               },child: Icon(Icons.favorite),
                 tooltip: 'Voir les favoris'),
+              FloatingActionButton(onPressed:(){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HistoryPage(token: widget.token))
+                );
+
+              },child: Icon(Icons.history),
+                  tooltip: 'historique'),
               
               Expanded(
                 child: ListView.builder(

@@ -50,6 +50,9 @@ class _FavoritePageState extends State<FavoritePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: Text("Favorits"),
+        ),
         body:Center(
         child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -43,10 +45,22 @@ class _DescriptionPageState extends State<DescriptionPage> {
     print(idUser);
    /* _timeInSeconds = widget.exercise['time']*60;*/
      _timeInSeconds = 1;
+
   }
 
-
+  int bpm = 0;
   void _startTimer() {
+    final random = Random();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_timeInSeconds == 0) {
+        //...
+      } else {
+        setState(() {
+          _timeInSeconds--;
+          bpm = random.nextInt(200); // Génère un nombre aléatoire entre 0 et 199.
+        });
+      }
+    });
     setState(() {
       _isActive = true;
     });
@@ -91,11 +105,6 @@ class _DescriptionPageState extends State<DescriptionPage> {
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-
-
-
-
-
 @override
   Widget build(BuildContext context) {
   String timeLeft = _formatTime(_timeInSeconds);
@@ -126,6 +135,10 @@ class _DescriptionPageState extends State<DescriptionPage> {
         ),
             Text(
               "Temps restant : $timeLeft",
+              style: TextStyle(fontSize: 24),
+            ),
+            Text(
+              "BPM: $bpm",
               style: TextStyle(fontSize: 24),
             ),
 
