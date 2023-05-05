@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
+import 'package:testratraflutter/config.dart';
 
 import 'DescriptionPage.dart';
 
@@ -24,7 +25,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
   Future<List> fetchAllHistoryExercises(String userId) async {
 
-    var url = Uri.parse('http://localhost:3000/$userId/exercisesHistory');
+    var url = Uri.parse(urls+'/$userId/exercisesHistory');
     var response = await http.get(url);
     print(url);
 

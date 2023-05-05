@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:testratraflutter/common/widgets/custom_textfield.dart';
 import 'package:testratraflutter/constants/global_variables.dart';
 import 'package:testratraflutter/config.dart';
 import 'package:testratraflutter/pages/HomePage.dart';
@@ -21,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _isNotValidate = false;
+  bool _isObscure = true;
   late SharedPreferences prefs;
 
   @override
@@ -35,6 +34,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 
+
+
   void loginUser() async {
     if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
 
@@ -43,21 +44,24 @@ class _LoginPageState extends State<LoginPage> {
         "password": passwordController.text,
 
       };
-      var response = await http.post(Uri.parse("http://localhost:3000/login"),
-
-          headers:{"Content-Type": "application/json",} ,
-          body: jsonEncode(regBody));
-      var jsonResponse = jsonDecode(response.body);
-      if(jsonResponse["status"]){
-        var myToken = jsonResponse["token"];
-
-        prefs.setString('token',myToken);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>  HomePage(token:myToken )));
-      }else{
-        print("Mail ou mot de passe incorrect");
-
+      try {
+        var response = await http.post(Uri.parse(urls+'/login'),
+            headers:{"Content-Type": "application/json",} ,
+            body: jsonEncode(regBody));
+        var jsonResponse = jsonDecode(response.body);
+        if(jsonResponse["status"]){
+          var myToken = jsonResponse["token"];
+          prefs.setString('token',myToken);
+          Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>  HomePage(token:myToken )));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Adresse e-mail ou mot de passe incorrect")));
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Erreur de connexion : ${e.toString()}")));
       }
     }
   }
@@ -71,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           children: [
             const Text(
-              "Welcome",
+              "SportNow",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
             ),
             const ListTile(
@@ -99,6 +103,7 @@ class _LoginPageState extends State<LoginPage> {
             TextField(
               controller: passwordController,
               keyboardType: TextInputType.text,
+              obscureText: _isObscure,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
@@ -107,6 +112,17 @@ class _LoginPageState extends State<LoginPage> {
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10.0)),
                 ),
+
+                  suffixIcon: IconButton(
+                      icon: Icon(
+                          _isObscure ? Icons.visibility : Icons.visibility_off),
+                      onPressed: () {
+                        setState(() {
+                          _isObscure = !_isObscure;
+                        });
+                      }),
+
+
               ),
             ),
             ElevatedButton(

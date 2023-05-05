@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
+import 'package:testratraflutter/config.dart';
 
 import 'DescriptionPage.dart';
 
@@ -20,9 +21,9 @@ class _FavoritePageState extends State<FavoritePage> {
 
   Future<List> fetchAllFavoriteExercices(String userId) async {
 
-    var url = Uri.parse('http://localhost:3000/$userId/exercises');
+    var url = Uri.parse(urls+'/$userId/exercises');
     var response = await http.get(url);
-    print(url);
+
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
@@ -45,7 +46,7 @@ class _FavoritePageState extends State<FavoritePage> {
     idUser = jwtDecodedToken['_id'];
     fetchAllFavoriteExercices(idUser);
 
-    print(idUser);
+
   }
   @override
   Widget build(BuildContext context) {

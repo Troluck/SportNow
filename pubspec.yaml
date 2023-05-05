@@ -44,6 +44,9 @@ dependencies:
   favorite_button: ^0.0.4
   intl: ^0.17.0
   intl_utils: ^2.8.2
+  get: ^4.6.5
+  permission_handler: ^10.2.0
+  flutter_blue: ^0.8.0
 
 dev_dependencies:
   flutter_test:
